@@ -23,6 +23,7 @@ use anyhow::Context as _;
 use assets::Assets;
 use futures::{channel::mpsc, select_biased, StreamExt};
 use outline_panel::OutlinePanel;
+use git_panel::GitPanel;
 use project::TaskSourceKind;
 use project_panel::ProjectPanel;
 use quick_action_bar::QuickActionBar;
@@ -245,6 +246,7 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut AppContext) {
 
             let project_panel = ProjectPanel::load(workspace_handle.clone(), cx.clone());
             let outline_panel = OutlinePanel::load(workspace_handle.clone(), cx.clone());
+            let git_panel = GitPanel::load(workspace_handle.clone(), cx.clone());
             let terminal_panel = TerminalPanel::load(workspace_handle.clone(), cx.clone());
             let channels_panel =
                 collab_ui::collab_panel::CollabPanel::load(workspace_handle.clone(), cx.clone());
@@ -258,6 +260,7 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut AppContext) {
             let (
                 project_panel,
                 outline_panel,
+                git_panel,
                 terminal_panel,
                 assistant_panel,
                 channels_panel,
@@ -266,6 +269,7 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut AppContext) {
             ) = futures::try_join!(
                 project_panel,
                 outline_panel,
+                git_panel,
                 terminal_panel,
                 assistant_panel,
                 channels_panel,
@@ -277,6 +281,7 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut AppContext) {
                 workspace.add_panel(assistant_panel, cx);
                 workspace.add_panel(project_panel, cx);
                 workspace.add_panel(outline_panel, cx);
+                workspace.add_panel(git_panel, cx);
                 workspace.add_panel(terminal_panel, cx);
                 workspace.add_panel(channels_panel, cx);
                 workspace.add_panel(chat_panel, cx);
@@ -473,6 +478,13 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut AppContext) {
                  _: &outline_panel::ToggleFocus,
                  cx: &mut ViewContext<Workspace>| {
                     workspace.toggle_panel_focus::<OutlinePanel>(cx);
+                },
+            )
+            .register_action(
+                |workspace: &mut Workspace,
+                 _: &git_panel::ToggleFocus,
+                 cx: &mut ViewContext<Workspace>| {
+                    workspace.toggle_panel_focus::<GitPanel>(cx);
                 },
             )
             .register_action(
@@ -3457,6 +3469,7 @@ mod tests {
             collab_ui::init(&app_state, cx);
             project_panel::init((), cx);
             outline_panel::init((), cx);
+            git_panel::init((), cx);
             terminal_view::init(cx);
             language_model::init(app_state.client.clone(), cx);
             assistant::init(app_state.fs.clone(), app_state.client.clone(), cx);

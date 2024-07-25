@@ -344,6 +344,14 @@
     /// when a directory has only one directory inside.
     "auto_fold_dirs": true
   },
+  "git_panel": {
+    // Whether to show the git panel button in the status bar
+    "button": true,
+    // Default width of the git panel.
+    "default_width": 300,
+    // Where to dock the git panel. Can be 'left' or 'right'.
+    "dock": "left"
+  },
   "collaboration_panel": {
     // Whether to show the collaboration panel button in the status bar.
     "button": true,
